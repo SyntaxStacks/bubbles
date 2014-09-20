@@ -4,20 +4,20 @@
   "description": "node game server",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "browserify ./lib/main.js -o ./bundle.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/SyntaxStacks/spaceshooter.git"
+    "url": "git@github.com:SyntaxStacks/bubbles.git"
   },
   "keywords": [
-    "space",
     "game"
   ],
   "author": "John Lozano",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/SyntaxStacks/spaceshooter/issues"
+    "url": "https://github.com/SyntaxStacks/bubbles/issues"
   },
   "homepage": "https://github.com/SyntaxStacks/spaceshooter",
   "dependencies": {
@@ -26,5 +26,8 @@
     "socket.io-client": "^1.0.6",
     "hammerjs": "*",
     "lodash": "*"
+  },
+  "devDependencies": {
+    "jshint": "^2.5.5"
   }
 }
