@@ -25,13 +25,19 @@ function Shooter(config) {
     this.drawEnemies = drawEnemies;
     this.initialize = initialize;
     function initialize(deps) { 
-      deps.io.on('update', updatePlayer); 
+      var io = deps.io;
+      io.on('update', updatePlayer); 
+      io.on('init', function (data) {
+        enemyList = data.clients;
+      }); 
+      io.on('kill', function (player) {
+        enemyList = _.omit(enemyList, player.id);
+      }); 
+      io.emit('start', ship.info());
     }
     function getEnemies()    {
-      console.log(enemyList);
       return _.transform(enemyList, function (res, enemy, key) {
           res.push(enemyList[key]);
-          console.log(key);
           return res;
       }, []); 
     }
@@ -61,12 +67,17 @@ function Shooter(config) {
         getShip().draw(canvas, drawStyle);
         canvas.restore();
         var enemies = getEnemies();
-        console.log(enemies);
+        canvas.save();
         _.map(enemies, function (enemy) {
             canvas.fillStyle = "#00F";
-            canvas.fillRect(enemy.x, enemy.y, 10, 10);
-            canvas.restore();
+            canvas.fillRect(enemy.pos.x, enemy.pos.y, 10, 10);
+            canvas.fillStyle = "#0F0";
+            _.each(enemy.lasors, function drawLasors (lasor) {
+              canvas.fillRect(lasor.pos.x, lasor.pos.y, 10, 10);
+            });
+            
         });
+        canvas.restore();
     }
 
 
