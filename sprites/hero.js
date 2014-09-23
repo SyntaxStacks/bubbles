@@ -25,7 +25,7 @@ var bubble = {
     eventActions['D'] = function () {
       bubble.shoot({
         velocity: {
-          x: 1,
+          x: 6,
           y: 0
         },
         pos: bubble.pos()
@@ -35,7 +35,7 @@ var bubble = {
       bubble.shoot({
         velocity: {
           x: 0,
-          y: -1
+          y: -6
         },
         pos: bubble.pos()
       });
@@ -44,7 +44,7 @@ var bubble = {
       bubble.shoot({
         velocity: {
           x: 0,
-          y: 1
+          y: 6
         },
         pos: bubble.pos()
       });
@@ -52,7 +52,7 @@ var bubble = {
     eventActions['A'] = function () {
       bubble.shoot({
         velocity: {
-          x: -1,
+          x: -6,
           y: 0
         },
         pos: bubble.pos()

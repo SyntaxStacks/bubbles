@@ -7,6 +7,7 @@ function Shooter(config) {
 
     var scoreboard      = new ui(config);
     var enemyList       = {};
+    var heroId = '';
 
     //these variables need to be arranged into a properties object
     var FRAMEHEIGHT     = config.frameHeight;
@@ -28,10 +29,15 @@ function Shooter(config) {
       var io = deps.io;
       io.on('update', updatePlayer); 
       io.on('init', function (data) {
+        console.log(data);
         enemyList = data.clients;
+        heroId = data.id;
       }); 
       io.on('kill', function (player) {
         enemyList = _.omit(enemyList, player.id);
+        if (player.id == heroId) {
+          return goToMenu();
+        }
       }); 
       io.emit('start', ship.info());
     }
@@ -101,11 +107,8 @@ function Shooter(config) {
     }
 
     function collides(obj1, obj2) {
-        var obj1Hitbox = obj1.getHitBox();
-        var obj2Hitbox = obj2.getHitBox();
-
-        if(obj1Hitbox.y1 < obj2Hitbox.y2 && obj1Hitbox.y1 > obj2Hitbox.y1) {
-            if(obj1Hitbox.x1 > obj2Hitbox.x1 && obj1Hitbox.x1 < obj2Hitbox.x2) {
+        if(obj1.pos.y >= obj2.pos.y && obj1.pos.y <= obj2.pos.y + 10) {
+            if(obj1.pos.x >= obj2.pos.x && obj1.pos.x <= obj2.pos.x + 10) {
               return true;
             }
         }  
@@ -113,50 +116,18 @@ function Shooter(config) {
         return false;
     }
 
-    function checkForHit(assets) {
-        var lasors = getShipLasors();
-        var bombs = getShipBombs();
-        var enemyLasors = getEnemyLasors();
+    function checkForHit(deps) {
+        var lasors = ship.lasors;
         var enemies = getEnemies();
 
         _.map(enemies, function( enemy ) {
             _.map(lasors, function( lasor ) {
-                if(enemy.status() == 'alive') {
-                    if(collides(lasor, enemy)) {
-                      scoreboard.addPoints(100);
-                      enemy.blowUp();
-                      assets.sounds.add('enemyExplode');
-                    }
+                if(collides(lasor, enemy)) {
+                    console.log(enemy);
+                    enemyList = _.omit(enemyList, enemy.id);
+                    deps.io.emit('kill', enemy);
                 }
             });
-
-            _.map(bombs, function( bomb ) {
-                if(enemy.status() == 'alive') {
-                    if(collides(enemy, bomb)) {
-                        scoreboard.addPoints(100);
-                        enemy.blowUp();
-                    }
-                }
-            });
-        });
-
-        if( _.isEmpty( getEnemies() ) ) {
-            createNewLevel();
-        }  
-
-        _.map(enemyLasors, function( lasor ) {
-            var ship = getShip();
-            var lasorX = lasor.x() || 0;
-            var shipX  = ship.locationX() || 0;
-
-            if(lasorX > shipX - 5 && lasorX < shipX + 20) {
-                var lasorY = lasor.y() || 0;
-                var shipY         = ship.locationY() || 0;
-                if(lasorY > shipY && lasorY < shipY + 10) {
-                    endGame();
-                    console.log("dedz");
-                }
-            }  
         });
     }
 
@@ -227,7 +198,7 @@ function Shooter(config) {
 
     function run(deps, callback) {
         updateSprites(deps);
-        // checkForHit(deps.assets);
+        checkForHit(deps);
         // removeDestroyedObjects();
         // updateUI();
         
